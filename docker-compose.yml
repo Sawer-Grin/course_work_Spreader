@@ -1,0 +1,60 @@
+version: '3'
+
+services:
+  app_dbs:
+    container_name: 'files'
+    image: postgres
+    command: ["postgres", "-c", "log_statement=all"]
+    restart: no
+    environment:
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: file_storage
+      POSTGRES_USER: file_system
+
+    ports:
+      - 3001:5432
+
+    volumes:
+      # init database
+      - ./migration:/docker-entrypoint-initdb.d
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U file_system -d file_storage"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  view_app:
+    # kiss my ass javascript
+    image: view_app:latest
+    container_name: 'view_app'
+    build: .
+    restart: always
+    ports:
+      - '8080:4000'
+
+    volumes:
+      - ./temp:/user/src/app/temp
+      - ./uploads:/user/src/app/uploads
+
+    env_file:
+      - ./eShare/.env
+
+    depends_on:
+      app_dbs:
+        condition: service_healthy
+
+  micro_services:
+    image: micro_services:latest
+    container_name: 'micro_services'
+    restart: "no"
+    env_file:
+      - ./micro_services/.env
+
+    volumes:
+      - ./temp:/app/temp
+      - ./uploads:/app/uploads
+
+    depends_on:
+      app_dbs:
+        condition: service_healthy

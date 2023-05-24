@@ -1,0 +1,18 @@
+shit_from_react/my-react-app/node_modules/
+Study
+build/.cmake/*
+build/CMakeFiles/
+eShare/js/node_modules/
+eShare/node_modules/
+eShare/build/
+build/
+
+# postgres migration
+migration/init_users.sql
+
+#ignore some python code
+micro_services/secrets/check_env.py
+micro_services/sub_libraries/zipper
+micro_services/temp
+.vscode
+micro_services/sub_libraries/script_for_compiling.sh
